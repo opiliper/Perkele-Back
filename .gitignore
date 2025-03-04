@@ -1,0 +1,5 @@
+# Ignore bin and obj directories if they are at the same level as a .csproj file
+!**/bin/
+!**/obj/
+**/bin/
+**/obj/

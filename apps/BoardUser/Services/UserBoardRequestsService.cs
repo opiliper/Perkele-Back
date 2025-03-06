@@ -20,7 +20,7 @@ public class UserBoardRequestsService(UserBoardDBContext context, IBus _bus)
     if (target_user == null) 
       return null;
 
-    var board = await bus.Rpc.RequestAsync<BoardDeleteContract, BoardModel?>(new(contract.BoardId));
+    var board = await bus.Rpc.RequestAsync<BoardGetContract, BoardModel?>(new(contract.BoardId));
     if (board == null) {
       return null;
     }
@@ -31,10 +31,10 @@ public class UserBoardRequestsService(UserBoardDBContext context, IBus _bus)
   public async Task<UserBoardRequestModel?> Create(UserBoardRequestCreateContract contract)
   {
     var target_user = await bus.Rpc.RequestAsync<GetUserContract, UserModel?>(new(Id: contract.UserId));
-    if (target_user == null) 
+    if (target_user == null)
       return null;
 
-    var board = await bus.Rpc.RequestAsync<BoardDeleteContract, BoardModel?>(new(contract.BoardId));
+    var board = await bus.Rpc.RequestAsync<BoardGetContract, BoardModel?>(new(contract.BoardId));
     if (board == null) {
       return null;
     }
@@ -43,6 +43,7 @@ public class UserBoardRequestsService(UserBoardDBContext context, IBus _bus)
       UserId = contract.UserId,
       BoardId = contract.BoardId,
     })).Entity;
+    DB.SaveChanges();
     return el;
   }
   public async Task<UserBoardRequestModel?> Delete(UserBoardRequestDeleteContract contract)
@@ -51,7 +52,7 @@ public class UserBoardRequestsService(UserBoardDBContext context, IBus _bus)
     if (target_user == null) 
       return null;
 
-    var board = await bus.Rpc.RequestAsync<BoardDeleteContract, BoardModel?>(new(contract.BoardId));
+    var board = await bus.Rpc.RequestAsync<BoardGetContract, BoardModel?>(new(contract.BoardId));
     if (board == null) {
       return null;
     }
@@ -59,7 +60,9 @@ public class UserBoardRequestsService(UserBoardDBContext context, IBus _bus)
     var el = await Get(new (contract.BoardId, contract.UserId));
     if (el == null)
       return null;
+
     DB.UserBoardRequests.Remove(el);
+    DB.SaveChanges();
     return el;
   }
 }

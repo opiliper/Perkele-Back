@@ -8,4 +8,5 @@ public class BoardModel
   public string Name { get; set; }
   public List<TicketModel> Tickets { get; set; }
   public virtual ICollection<UserBoardModel> UserBoards { get; set; } = [];
+  public List<UserBoardRequestModel> AccessRequests { get; set; } = [];
 }

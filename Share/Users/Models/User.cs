@@ -10,6 +10,7 @@ public class UserModel
   public string? Password_Hash { get; set; } = string.Empty;
   public byte[]? Image { get; set; }
   public List<UserBoardModel> HasAccessTo { get; set; } = [];
+  public List<UserBoardRequestModel> AccessRequests { get; set; } = [];
   public DateTime Created_At { get; set; } = DateTime.Now.ToUniversalTime();
   public DateTime Updated_At { get; set; }
 }

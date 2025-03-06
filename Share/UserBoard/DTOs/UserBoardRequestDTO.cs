@@ -1,3 +1,3 @@
 namespace UserBoard.DTOs;
 
-public record class UserBoardRequestDTO(uint BoardId, uint UserId);
+public record class UserBoardRequestDTO(uint BoardId);

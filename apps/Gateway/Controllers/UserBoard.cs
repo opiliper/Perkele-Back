@@ -41,6 +41,7 @@ public class UserBoardController(IBus _bus) : ControllerBase
       return Forbid();
     }
 
+    Console.WriteLine(dTO.UserBoardRole);
     if (dTO.UserBoardRole == null) {
       return Ok(await bus.Rpc.RequestAsync<UserBoardDeleteContract, UserBoardModel?>(new (dTO.BoardId, dTO.UserId)));
     }
@@ -51,6 +52,7 @@ public class UserBoardController(IBus _bus) : ControllerBase
 
     return Ok(await bus.Rpc.RequestAsync<UserBoardCreateContract, UserBoardModel?>(new (dTO.BoardId, dTO.UserId, (UserBoardRoleEnum)dTO.UserBoardRole)));
   }
+
   [HttpPost("access_request")]
   public async Task<ActionResult<UserBoardRequestModel?>> CreateUserBoardRequest(UserBoardRequestDTO dTO)
   {
@@ -64,7 +66,7 @@ public class UserBoardController(IBus _bus) : ControllerBase
       return NotFound();
     }
 
-    var userBoardRequest = await bus.Rpc.RequestAsync<UserBoardRequestCreateContract, UserBoardRequestModel?>(new (dTO.BoardId, dTO.UserId));
+    var userBoardRequest = await bus.Rpc.RequestAsync<UserBoardRequestCreateContract, UserBoardRequestModel?>(new (ctx_user_id, dTO.BoardId));
     return Ok(userBoardRequest);
   }
 }

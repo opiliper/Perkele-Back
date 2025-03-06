@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace UserBoard.Enums;
 
 public enum UserBoardRoleEnum

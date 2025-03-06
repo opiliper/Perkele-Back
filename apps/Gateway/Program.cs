@@ -27,7 +27,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     }
 );
 builder.Services.AddAuthorization();
-builder.Services.AddScoped<AuthService>();
+builder.Services.AddTransient<AuthService>();
 using var app = builder.Build();
 
 app.UseAuthentication();

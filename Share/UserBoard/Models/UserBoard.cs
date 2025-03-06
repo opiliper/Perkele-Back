@@ -9,6 +9,6 @@ public class UserBoardModel
   public uint BoardId { get; set; }
   public BoardModel Board { get; set; }
   public uint UserId { get; set; }
-  public UserModel Model { get; set; }
+  public UserModel User { get; set; }
   public UserBoardRoleEnum Role { get; set; }
 }

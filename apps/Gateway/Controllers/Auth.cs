@@ -4,14 +4,14 @@ using Auth.DTOs;
 using EasyNetQ;
 using Gateway.Services;
 using Microsoft.AspNetCore.Mvc;
+using Users.DTOs;
 
 namespace Gateway.Controllers;
 
 [ApiController]
 [Route("api/v1_0/Auth")]
-public class AuthController(IBus _bus, AuthService _authService) : ControllerBase
+public class AuthController(AuthService _authService) : ControllerBase
 {
-  private readonly IBus bus = _bus;
   private readonly AuthService authService = _authService;
   private readonly JsonSerializerOptions json_options = new() { ReferenceHandler = ReferenceHandler.Preserve };
 
@@ -19,7 +19,7 @@ public class AuthController(IBus _bus, AuthService _authService) : ControllerBas
   [Route("login")]
   public async Task<ActionResult<string>> Login([FromBody] LoginDTO dTO)
   {
-    var result = await authService.Login(dTO);
+    var result = await authService.Login(new(Email: dTO.Email, Password: dTO.Password));
 
     return result switch
     {
@@ -27,5 +27,16 @@ public class AuthController(IBus _bus, AuthService _authService) : ControllerBas
       LoginResults.WRONG_PASSWORD => BadRequest(LoginResults.WRONG_PASSWORD),
       _ => Ok(result),
     };
+  }
+
+  [HttpPost]
+  [Route("register")]
+  public async Task<ActionResult<RegisterResult>> Register([FromBody] CreateUserDTO dTO)
+  {
+    var result = await authService.Register(new(dTO));
+    if (result is null)
+      return BadRequest();
+
+    return result;
   }
 }

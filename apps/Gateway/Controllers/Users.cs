@@ -20,6 +20,9 @@ public class UsersController(IBus _bus) : ControllerBase
   [HttpGet("{id}")]
   public async Task<ActionResult<UserModel?>> GetUser(uint id)
   {
+    if (id != Convert.ToUInt32(User.FindFirst("Id")!.Value))
+      return Forbid();
+
     var user = await bus.Rpc.RequestAsync<GetUserContract, UserModel?>(new(Id: id));
     if (user == null) {
       return NotFound();
@@ -40,6 +43,9 @@ public class UsersController(IBus _bus) : ControllerBase
   [HttpPut("{id}")]
   public async Task<ActionResult<UserModel?>> UpdateUser(uint id, [FromBody] UpdateUserDTO updateUserDTO)
   {
+    if (id != Convert.ToUInt32(User.FindFirst("Id")!.Value))
+      return Forbid();
+
     var user = await bus.Rpc.RequestAsync<UpdateUserContract, UserModel?>(new(id, updateUserDTO));
     if (user == null) {
       return NotFound();
@@ -50,6 +56,9 @@ public class UsersController(IBus _bus) : ControllerBase
   [HttpDelete("{id}")]
   public async Task<ActionResult<UserModel?>> DeleteUser(uint id)
   {
+    if (id != Convert.ToUInt32(User.FindFirst("Id")!.Value))
+      return Forbid();
+
     var user = await bus.Rpc.RequestAsync<DeleteUserContract, UserModel?>(new(id));
     if (user == null) {
       return NotFound();

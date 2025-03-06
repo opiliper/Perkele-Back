@@ -2,7 +2,9 @@ using EasyNetQ;
 using UserBoard.Models;
 using UserBoard.Contracts;
 using Microsoft.EntityFrameworkCore;
-using Auth;
+using BoardUser;
+using Users.Models;
+using Users.Contracts;
 
 namespace UserBoard.Services;
 
@@ -13,25 +15,38 @@ public class UserBoardService(UserBoardDBContext context, IBus _bus)
 
   public async Task<UserBoardModel?> AddAsync(UserBoardCreateContract contract)
   {
-    var el_entry = await DB.UserBoards.AddAsync(new () {
+    UserModel? user = await bus.Rpc.RequestAsync<GetUserContract, UserModel?>(new(Id: contract.UserId));
+    if (user == null)
+      return null;
+
+    UserBoardModel? el = (await DB.UserBoards.AddAsync(new()
+    {
       UserId = contract.UserId,
       BoardId = contract.BoardId,
       Role = contract.Role
-    });
+    })).Entity;
     await DB.SaveChangesAsync();
 
-    return el_entry.Entity;
+    return el;
   }
 
   public async Task<UserBoardModel?> GetAsync(UserBoardGetContract contract)
   {
-    var el = await DB.UserBoards.FirstAsync(x => x.BoardId == contract.BoardId && x.UserId == contract.UserId);
+    UserModel? user = await bus.Rpc.RequestAsync<GetUserContract, UserModel?>(new(Id: contract.UserId));
+    if (user == null)
+      return null;
+
+    var el = await DB.UserBoards.FirstOrDefaultAsync(x => x.BoardId == contract.BoardId && x.UserId == contract.UserId);
     return el;
   }
 
   public async Task<UserBoardModel?> UpdateAsync(UserBoardUpdateContract contract)
   {
-    var el = await GetAsync(new (contract.BoardId, contract.UserId));
+    UserModel? user = await bus.Rpc.RequestAsync<GetUserContract, UserModel?>(new(Id: contract.UserId));
+    if (user == null)
+      return null;
+
+    var el = await GetAsync(new(contract.BoardId, contract.UserId));
     if (el is null)
       return null;
 
@@ -45,7 +60,11 @@ public class UserBoardService(UserBoardDBContext context, IBus _bus)
 
   public async Task<UserBoardModel?> DeleteAsync(UserBoardDeleteContract contract)
   {
-    var el = await GetAsync(new (contract.BoardId, contract.UserId));
+    UserModel? user = await bus.Rpc.RequestAsync<GetUserContract, UserModel?>(new(Id: contract.UserId));
+    if (user == null)
+      return null;
+
+    var el = await GetAsync(new(contract.BoardId, contract.UserId));
     if (el is null)
       return null;
 

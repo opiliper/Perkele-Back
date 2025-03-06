@@ -28,7 +28,7 @@ public class BoardController(IBus _bus) : ControllerBase
     var ctx_user_id = Convert.ToUInt32(User.FindFirst("Id")!.Value);
     var user = await bus.Rpc.RequestAsync<GetUserContract, UserModel?>(new(Id: ctx_user_id));
     if (user == null) 
-      return NotFound();
+      return Forbid();
 
     var board = await bus.Rpc.RequestAsync<BoardGetContract, BoardModel?>(new(id));
     if (board == null)
@@ -50,7 +50,7 @@ public class BoardController(IBus _bus) : ControllerBase
     var ctx_user_id = Convert.ToUInt32(User.FindFirst("Id")!.Value);
     var user = await bus.Rpc.RequestAsync<GetUserContract, UserModel?>(new(Id: ctx_user_id));
     if (user == null) 
-      return NotFound();
+      return Forbid();
 
     var board = await bus.Rpc.RequestAsync<BoardCreateContract, BoardModel?>(new(boardAddDTO));
     if (board == null) {
@@ -70,7 +70,7 @@ public class BoardController(IBus _bus) : ControllerBase
     var ctx_user_id = Convert.ToUInt32(User.FindFirst("Id")!.Value);
     var user = await bus.Rpc.RequestAsync<GetUserContract, UserModel?>(new(Id: ctx_user_id));
     if (user == null) 
-      return NotFound();
+      return Forbid();
 
     var board = await bus.Rpc.RequestAsync<BoardUpdateContract, BoardModel?>(new(id, boardUpdateDTO));
     if (board == null)
@@ -93,7 +93,7 @@ public class BoardController(IBus _bus) : ControllerBase
     var ctx_user_id = Convert.ToUInt32(User.FindFirst("Id")!.Value);
     var user = await bus.Rpc.RequestAsync<GetUserContract, UserModel?>(new(Id: ctx_user_id));
     if (user == null) 
-      return NotFound();
+      return Forbid();
 
     var board = await bus.Rpc.RequestAsync<BoardDeleteContract, BoardModel?>(new(id));
     if (board == null) {

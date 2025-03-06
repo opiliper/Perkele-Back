@@ -25,7 +25,7 @@ public class TicketController(IBus _bus) : ControllerBase
     var ctx_user_id = Convert.ToUInt32(User.FindFirst("Id")!.Value);
     var user = await bus.Rpc.RequestAsync<GetUserContract, UserModel?>(new(Id: ctx_user_id));
     if (user == null) 
-      return NotFound();
+      return Forbid();
 
     var ticket = await bus.Rpc.RequestAsync<TicketGetContract, TicketModel?>(new(id));
     if (ticket == null) {
@@ -40,7 +40,7 @@ public class TicketController(IBus _bus) : ControllerBase
     var ctx_user_id = Convert.ToUInt32(User.FindFirst("Id")!.Value);
     var user = await bus.Rpc.RequestAsync<GetUserContract, UserModel?>(new(Id: ctx_user_id));
     if (user == null) 
-      return NotFound();
+      return Forbid();
 
     TicketModel? ticket = await bus.Rpc.RequestAsync<TicketCreateContract, TicketModel?>(new(ticketAddDTO));
     if (ticket == null) {
@@ -55,7 +55,7 @@ public class TicketController(IBus _bus) : ControllerBase
     var ctx_user_id = Convert.ToUInt32(User.FindFirst("Id")!.Value);
     var user = await bus.Rpc.RequestAsync<GetUserContract, UserModel?>(new(Id: ctx_user_id));
     if (user == null) 
-      return NotFound();
+      return Forbid();
 
     var ticket = await bus.Rpc.RequestAsync<TicketUpdateContract, TicketModel?>(new(id, ticketUpdateDTO));
     if (ticket == null) {
@@ -70,7 +70,7 @@ public class TicketController(IBus _bus) : ControllerBase
     var ctx_user_id = Convert.ToUInt32(User.FindFirst("Id")!.Value);
     var user = await bus.Rpc.RequestAsync<GetUserContract, UserModel?>(new(Id: ctx_user_id));
     if (user == null) 
-      return NotFound();
+      return Forbid();
 
     var ticket = await bus.Rpc.RequestAsync<TicketDeleteContract, TicketModel?>(new(id));
     if (ticket == null) {
@@ -85,7 +85,7 @@ public class TicketController(IBus _bus) : ControllerBase
     var ctx_user_id = Convert.ToUInt32(User.FindFirst("Id")!.Value);
     var user = await bus.Rpc.RequestAsync<GetUserContract, UserModel?>(new(Id: ctx_user_id));
     if (user == null) 
-      return NotFound();
+      return Forbid();
 
     var node = await bus.Rpc.RequestAsync<TicketNodeCreateContract, TicketNodeModel?>(new(id, ticketNodeAddDTO));
     if (node == null) {
@@ -100,7 +100,7 @@ public class TicketController(IBus _bus) : ControllerBase
     var ctx_user_id = Convert.ToUInt32(User.FindFirst("Id")!.Value);
     var user = await bus.Rpc.RequestAsync<GetUserContract, UserModel?>(new(Id: ctx_user_id));
     if (user == null) 
-      return NotFound();
+      return Forbid();
 
     var node = await bus.Rpc.RequestAsync<TicketNodeDeleteContract, TicketNodeModel?>(new(id, key));
     if (node == null) {

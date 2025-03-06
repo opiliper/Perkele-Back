@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using BoardUser;
+using BoardUser.Services;
 using EasyNetQ;
 using Microsoft.EntityFrameworkCore;
 using UserBoard.Controllers;
@@ -14,8 +15,11 @@ builder.Services.AddSingleton(_ =>
   x => x.EnableSystemTextJson(new () { ReferenceHandler = ReferenceHandler.IgnoreCycles }))
 );
 builder.Services.AddTransient<UserBoardService>();
+builder.Services.AddTransient<UserBoardRequestsService>();
 builder.Services.AddSingleton<UserBoardRMQController>();
+builder.Services.AddSingleton<UserBoardRequestRMQController>();
 var app = builder.Build();
-var rmqController = app.Services.GetRequiredService<UserBoardRMQController>();
+var userBoardRMQController = app.Services.GetRequiredService<UserBoardRMQController>();
+var userBoardRequestRMQController = app.Services.GetRequiredService<UserBoardRequestRMQController>();
 
 app.Run();

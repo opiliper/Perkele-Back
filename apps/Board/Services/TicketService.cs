@@ -19,6 +19,8 @@ public class TicketService(BoardDBContext context, BoardService _boardService)
     var el_entry = await DB.Tickets.AddAsync(new TicketModel()
     {
       BoardId = _board.Id,
+      Title = contract.DTO.Title,
+      Value = contract.DTO.Value,
       Nodes = []
     });
     await DB.SaveChangesAsync();
@@ -37,11 +39,8 @@ public class TicketService(BoardDBContext context, BoardService _boardService)
         })
       );
     }
-
     await DB.SaveChangesAsync();
-
-    var el = await GetAsync(new(el_entry.Entity.Id));
-    return el;
+    return el_entry.Entity;
   }
 
   public async Task<TicketModel?> GetAsync(TicketGetContract contract)
@@ -62,6 +61,8 @@ public class TicketService(BoardDBContext context, BoardService _boardService)
     if (el is null)
       return null;
 
+    el.Title = contract.DTO.Title ?? el.Title;
+    el.Value = contract.DTO.Value ?? el.Value;
     if (contract.DTO.Nodes is not null)
     {
       foreach (var element in contract.DTO.Nodes)
@@ -74,10 +75,10 @@ public class TicketService(BoardDBContext context, BoardService _boardService)
         _node.Value = element.Value;
 
         DB.TicketNodes.Update(_node);
-        await DB.SaveChangesAsync();
       }
     }
 
+    await DB.SaveChangesAsync();
     return el;
   }
 

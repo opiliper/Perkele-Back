@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Auth.DTOs;
-using EasyNetQ;
+using Auth.Results;
 using Gateway.Services;
 using Microsoft.AspNetCore.Mvc;
 using Users.DTOs;

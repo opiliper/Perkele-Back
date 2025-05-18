@@ -73,4 +73,14 @@ public class UserBoardService(UserBoardDBContext context, IBus _bus)
     await DB.SaveChangesAsync();
     return el;
   }
+
+  public async Task<UserBoardModel[]?> GetUserBoardModelsByUser(UserBoardsGetByUserContract contract)
+  {
+    var user = await bus.Rpc.RequestAsync<GetUserContract, UserModel?>(new(Id: contract.UserId));
+    if (user == null)
+      return null;
+
+    UserBoardModel[] userBoardModels = [.. DB.UserBoards.Where(x => x.UserId == contract.UserId)];
+    return userBoardModels;
+  }
 }

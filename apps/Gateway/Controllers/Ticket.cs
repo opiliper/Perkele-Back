@@ -2,10 +2,15 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Board.Contracts;
 using Board.DTOs;
+using Board.Hubs;
 using Board.Models;
 using EasyNetQ;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using UserBoard.Contracts;
+using UserBoard.Enums;
+using UserBoard.Models;
 using Users.Contracts;
 using Users.Models;
 
@@ -14,8 +19,9 @@ namespace Gateway.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/v1_0/Ticket")]
-public class TicketController(IBus _bus) : ControllerBase
+public class TicketController(IBus _bus, IHubContext<BoardHub> _hubContext) : ControllerBase
 {
+  private readonly IHubContext<BoardHub> hubContext = _hubContext;
   private readonly IBus bus = _bus;
   private readonly JsonSerializerOptions json_options = new () { ReferenceHandler = ReferenceHandler.Preserve };
 
@@ -46,6 +52,7 @@ public class TicketController(IBus _bus) : ControllerBase
     if (ticket == null) {
       return BadRequest();
     }
+
     return Ok(new JsonResult(ticket, json_options).Value);
   }
 
@@ -76,6 +83,11 @@ public class TicketController(IBus _bus) : ControllerBase
     if (ticket == null) {
       return NotFound();
     }
+
+    var userBoardModel = await bus.Rpc.RequestAsync<UserBoardGetContract, UserBoardModel?>(new(ticket.BoardId, Convert.ToUInt32(ctx_user_id)));
+    if (userBoardModel == null || userBoardModel.Role < UserBoardRoleEnum.ReadOnly)
+      return Forbid();
+    
     return Ok(new JsonResult(ticket, json_options).Value);
   }
 

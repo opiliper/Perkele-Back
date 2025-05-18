@@ -18,6 +18,36 @@ namespace Gateway.Controllers;
 public class UserBoardController(IBus _bus) : ControllerBase
 {
   private readonly IBus bus = _bus;
+
+  [HttpDelete("decline_access/{board_id}/{user_id}")]
+  public async Task<ActionResult<UserBoardModel?>> DeclineAccess(uint board_id, uint user_id)
+  {
+    var ctx_user_id = Convert.ToUInt32(User.FindFirst("Id")!.Value);
+    var source_user = await bus.Rpc.RequestAsync<GetUserContract, UserModel?>(new(Id: ctx_user_id));
+    if (source_user == null)
+      return Forbid();
+
+    var userBoardRequest = await bus.Rpc.RequestAsync<UserBoardRequestDeleteContract, UserBoardRequestModel?>(new(board_id, user_id));
+    if (userBoardRequest == null)
+      return NotFound();
+
+    return Ok(userBoardRequest);
+  }
+
+  [HttpGet("{board_id}/{user_id}")]
+  public async Task<ActionResult> GetUserBoard(uint board_id, uint user_id)
+  {
+    var ctx_user_id = Convert.ToUInt32(User.FindFirst("Id")!.Value);
+    var source_user = await bus.Rpc.RequestAsync<GetUserContract, UserModel?>(new(Id: ctx_user_id));
+    if (source_user == null)
+      return Forbid();
+
+    var userBoard = await bus.Rpc.RequestAsync<UserBoardGetContract, UserBoardModel?>(new(board_id, user_id));
+    if (userBoard == null)
+      return NotFound();
+
+    return Ok(userBoard);
+  }
   
   [HttpPost("change_access")]
   public async Task<ActionResult<UserBoardModel?>> GiveUserAccessToBoard(UserBoardDTO dTO)
@@ -68,5 +98,46 @@ public class UserBoardController(IBus _bus) : ControllerBase
 
     var userBoardRequest = await bus.Rpc.RequestAsync<UserBoardRequestCreateContract, UserBoardRequestModel?>(new (ctx_user_id, dTO.BoardId));
     return Ok(userBoardRequest);
+  }
+
+  [HttpGet("requests")]
+  public async Task<ActionResult<UserBoardRequestModel[]?>> GetBoardRequestsForCurrentUser()
+  {
+    var ctx_user_id = Convert.ToUInt32(User.FindFirst("Id")!.Value);
+    var current_user = await bus.Rpc.RequestAsync<GetUserContract, UserModel?>(new(Id: ctx_user_id));
+    if (current_user == null) 
+      return Forbid();
+
+    var userBoardRequests = await bus.Rpc.RequestAsync<UserBoardRequestsGetByUserContract, UserBoardRequestModel[]?>(new () { UserId = ctx_user_id });
+    List<UserBoardRequestModel> result = [.. userBoardRequests ?? []];
+
+    foreach (var userBoard in current_user.HasAccessTo)
+    {
+      if (userBoard.Role < UserBoardRoleEnum.Full)
+        continue;
+      
+      result!.AddRange(await bus.Rpc.RequestAsync<UserBoardRequestsGetByBoardContract, UserBoardRequestModel[]?>(new () { BoardId = userBoard.BoardId}) ?? []);
+    }
+
+    return Ok(result);
+  }
+
+  [HttpGet("boards")]
+  public async Task<ActionResult<BoardModel[]?>> GetBoardsForCurrentUser()
+  {
+    var ctx_user_id = Convert.ToUInt32(User.FindFirst("Id")!.Value);
+    var current_user = await bus.Rpc.RequestAsync<GetUserContract, UserModel?>(new(Id: ctx_user_id));
+    if (current_user == null) 
+      return Forbid();
+
+    var userBoardRequests = await bus.Rpc.RequestAsync<UserBoardsGetByUserContract, UserBoardModel[]?>(new () { UserId = ctx_user_id });
+    List<BoardModel> boards = [];
+    foreach (var userBoard in userBoardRequests ?? [])
+    {
+      var board = await bus.Rpc.RequestAsync<BoardGetContract, BoardModel?>(new(userBoard.BoardId));
+      boards.Add(board!);
+    }
+
+    return Ok(boards);
   }
 }

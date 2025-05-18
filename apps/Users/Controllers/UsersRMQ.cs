@@ -8,13 +8,13 @@ namespace Users.Controllers;
 public class UsersRMQController : IDisposable
 {
   private readonly IBus bus;
-  private readonly UsersService usersService;
+  private readonly IServiceProvider serviceProvider;
   readonly List<IDisposable> disposables = [];
 
-  public UsersRMQController(IBus _bus, UsersService _usersService)
+  public UsersRMQController(IBus _bus, IServiceProvider _serviceProvider)
   {
     bus = _bus;
-    usersService = _usersService;
+    serviceProvider = _serviceProvider;
 
     List<EasyNetQ.Internals.AwaitableDisposable<IDisposable>> tasks =
     [
@@ -28,21 +28,25 @@ public class UsersRMQController : IDisposable
 
   public async Task<UserModel?> GetUser(GetUserContract contract)
   {
+    var usersService = serviceProvider.GetRequiredService<UsersService>();
     return await usersService.GetUserByIdAsync(contract);
   }
 
   public async Task<UserModel?> CreateUser(CreateUserContract contract)
   {
+    var usersService = serviceProvider.GetRequiredService<UsersService>();
     return await usersService.CreateUserAsync(contract);
   }
 
   public async Task<UserModel?> UpdateUser(UpdateUserContract contract)
   {
+    var usersService = serviceProvider.GetRequiredService<UsersService>();
     return await usersService.UpdateUserAsync(contract);
   }
 
   public async Task<UserModel?> DeleteUser(DeleteUserContract contract)
   {
+    var usersService = serviceProvider.GetRequiredService<UsersService>();
     return await usersService.DeleteUserAsync(contract);
   }
 

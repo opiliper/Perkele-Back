@@ -31,7 +31,7 @@ public class UsersService(UsersDBContext usersDB)
 
   public async Task<UserModel?> GetUserByIdAsync(GetUserContract contract)
   {
-    var res = await DB.Users.FirstOrDefaultAsync(el => el.Id == contract.Id || el.Email == contract.Email);
+    var res = await DB.Users.Where(el => el.Id == contract.Id || el.Email == contract.Email).Include(el => el.HasAccessTo).FirstOrDefaultAsync();
     if (res is null || res.Password_Hash == null)
       return null;
     return res;

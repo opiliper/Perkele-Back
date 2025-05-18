@@ -2,10 +2,12 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Board.Contracts;
 using Board.DTOs;
+using Board.Hubs;
 using Board.Models;
 using EasyNetQ;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using UserBoard.Contracts;
 using UserBoard.Enums;
 using UserBoard.Models;
@@ -17,8 +19,9 @@ namespace Gateway.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/v1_0/Board")]
-public class BoardController(IBus _bus) : ControllerBase
+public class BoardController(IBus _bus, IHubContext<BoardHub> _hubContext) : ControllerBase
 {
+  private readonly IHubContext<BoardHub> hubContext = _hubContext;
   private readonly IBus bus = _bus;
   private readonly JsonSerializerOptions json_options = new() { ReferenceHandler = ReferenceHandler.Preserve };
 
@@ -30,16 +33,14 @@ public class BoardController(IBus _bus) : ControllerBase
     if (user == null) 
       return Forbid();
 
-    var board = await bus.Rpc.RequestAsync<BoardGetContract, BoardModel?>(new(id));
-    if (board == null)
-    {
-      return NotFound();
-    }
-
     var user_id = HttpContext.User.FindFirst("Id")!.Value;
     var userBoardModel = await bus.Rpc.RequestAsync<UserBoardGetContract, UserBoardModel?>(new(id, Convert.ToUInt32(user_id)));
     if (userBoardModel == null || userBoardModel.Role < UserBoardRoleEnum.ReadOnly)
       return Forbid();
+
+    var board = await bus.Rpc.RequestAsync<BoardGetContract, BoardModel?>(new(id));
+    if (board == null)
+      return NotFound();
 
     return Ok(new JsonResult(board, json_options).Value);
   }
@@ -72,17 +73,18 @@ public class BoardController(IBus _bus) : ControllerBase
     if (user == null) 
       return Forbid();
 
-    var board = await bus.Rpc.RequestAsync<BoardUpdateContract, BoardModel?>(new(id, boardUpdateDTO));
-    if (board == null)
-    {
-      return NotFound();
-    }
-
     var user_id = HttpContext.User.FindFirst("Id")!.Value;
     var userBoardModel = await bus.Rpc.RequestAsync<UserBoardGetContract, UserBoardModel?>(new(id, Convert.ToUInt32(user_id)));
     if (userBoardModel == null || userBoardModel.Role < UserBoardRoleEnum.Full) {
       return Forbid();
     }
+
+    var board = await bus.Rpc.RequestAsync<BoardUpdateContract, BoardModel?>(new(id, boardUpdateDTO));
+    if (board == null) {
+      return NotFound();
+    }
+
+    await hubContext.Clients.Group($"board-{id}").SendAsync("BoardUpdate", boardUpdateDTO);
 
     return Ok(new JsonResult(board, json_options).Value);
   }
@@ -93,17 +95,17 @@ public class BoardController(IBus _bus) : ControllerBase
     var ctx_user_id = Convert.ToUInt32(User.FindFirst("Id")!.Value);
     var user = await bus.Rpc.RequestAsync<GetUserContract, UserModel?>(new(Id: ctx_user_id));
     if (user == null) 
-      return Forbid();
-
-    var board = await bus.Rpc.RequestAsync<BoardDeleteContract, BoardModel?>(new(id));
-    if (board == null) {
-      return NotFound();
-    }
+      return Unauthorized();
 
     var user_id = HttpContext.User.FindFirst("Id")!.Value;
     var userBoardModel = await bus.Rpc.RequestAsync<UserBoardGetContract, UserBoardModel?>(new(id, Convert.ToUInt32(user_id)));
     if (userBoardModel == null || userBoardModel.Role < UserBoardRoleEnum.Full) {
       return Forbid();
+    }
+
+    var board = await bus.Rpc.RequestAsync<BoardDeleteContract, BoardModel?>(new(id));
+    if (board == null) {
+      return NotFound();
     }
 
     return Ok(new JsonResult(board, json_options).Value);

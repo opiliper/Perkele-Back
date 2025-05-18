@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json.Serialization;
+using Board.Hubs;
 using EasyNetQ;
 using Gateway.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -24,15 +25,33 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
         ValidateLifetime = true
       };
+      opts.Events = new JwtBearerEvents
+      {
+        OnMessageReceived = context =>
+        {
+          var accessToken = context.Request.Query["access_token"];
+
+          // если запрос направлен хабу
+          var path = context.HttpContext.Request.Path;
+          if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/api/v1_0/Board/Hub"))
+          {
+            // получаем токен из строки запроса
+            context.Token = accessToken;
+          }
+          return Task.CompletedTask;
+        }
+      };
     }
 );
 builder.Services.AddAuthorization();
 builder.Services.AddTransient<AuthService>();
+builder.Services.AddSignalR();
 using var app = builder.Build();
 
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<BoardHub>("/api/v1_0/Board/Hub");
 
 app.Run();
 

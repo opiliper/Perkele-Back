@@ -14,7 +14,7 @@ public class PerkeleDBContext(DbContextOptions options) : DbContext(options)
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {
     modelBuilder.Entity<TicketNodeModel>().HasKey(el => new { el.Key, el.TicketId });
-    modelBuilder.Entity<UserModel>().HasAlternateKey(el => el.Email);
+    modelBuilder.Entity<UserModel>().HasIndex(el => el.Email).IsUnique();
     modelBuilder.Entity<UserBoardModel>().HasKey(e => new { e.UserId, e.BoardId });
     modelBuilder.Entity<UserBoardRequestModel>().HasKey(el => new { el.UserId, el.BoardId });
   }

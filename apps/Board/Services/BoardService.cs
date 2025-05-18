@@ -10,7 +10,7 @@ public class BoardService(BoardDBContext context)
   public async Task<BoardModel> AddAsync(BoardCreateContract contract)
   {
     var el_entry = await DB.Boards.AddAsync(new BoardModel() {
-      Name = contract.DTO.Name,
+      Name = string.IsNullOrEmpty(contract.DTO.Name)? "Some Name" : contract.DTO.Name,
     });
     await DB.SaveChangesAsync();
 

@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Auth.Contracts;
+using Auth.Results;
 using EasyNetQ;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -41,7 +42,9 @@ public class AuthService(IBus _bus)
   public string CreateJWT(UserModel user)
   {
     List<Claim> claims = [
-      new("Id", Convert.ToString(user.Id))
+      new("Id", Convert.ToString(user.Id)),
+      new(ClaimTypes.Name, user.Name),
+      new(ClaimTypes.Email, user.Email),
     ];
     // создаем JWT-токен
     var jwt = new JwtSecurityToken(
@@ -60,16 +63,4 @@ public class AuthService(IBus _bus)
 
     return new() { User = user, Jwt = CreateJWT(user) };
   }
-}
-
-public static class LoginResults
-{
-  public const string USER_NOT_FOUND = "No Such User Idiot";
-  public const string WRONG_PASSWORD = "Wrong Password Bruh";
-}
-
-public class RegisterResult
-{
-  public required UserModel User { get; set; }
-  public required string Jwt { get; set; }
 }

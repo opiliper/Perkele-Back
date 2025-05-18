@@ -21,6 +21,7 @@ public class TicketService(BoardDBContext context, BoardService _boardService)
       BoardId = _board.Id,
       Title = contract.DTO.Title,
       Value = contract.DTO.Value,
+      Column = contract.DTO.Column,
       Nodes = []
     });
     await DB.SaveChangesAsync();
@@ -63,6 +64,7 @@ public class TicketService(BoardDBContext context, BoardService _boardService)
 
     el.Title = contract.DTO.Title ?? el.Title;
     el.Value = contract.DTO.Value ?? el.Value;
+    el.Column = contract.DTO.Column ?? el.Column;
     if (contract.DTO.Nodes is not null)
     {
       foreach (var element in contract.DTO.Nodes)
@@ -77,6 +79,7 @@ public class TicketService(BoardDBContext context, BoardService _boardService)
         DB.TicketNodes.Update(_node);
       }
     }
+    DB.Tickets.Update(el);
 
     await DB.SaveChangesAsync();
     return el;

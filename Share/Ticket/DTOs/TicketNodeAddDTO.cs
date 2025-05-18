@@ -1,6 +1,6 @@
-namespace Board.DTOs;
+namespace Ticket.DTOs;
 
-public class TicketNodeUpdateDTO
+public class TicketNodeAddDTO
 {
   public string Key { get; set; }
   public string Value { get; set; }

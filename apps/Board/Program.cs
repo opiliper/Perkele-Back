@@ -11,15 +11,14 @@ builder.Services.AddDbContext<BoardDBContext>(options => options.UseNpgsql(build
   ServiceLifetime.Transient,
   ServiceLifetime.Transient);
 builder.Services.AddTransient<BoardService>();
-builder.Services.AddTransient<TicketService>();
 builder.Services.AddSingleton<BoardRMQController>();
-builder.Services.AddSingleton<TicketRMQController>();
+
 builder.Services.AddSingleton(_ =>
   RabbitHutch.CreateBus(builder.Configuration.GetConnectionString("EasyNetQ"),
   x => x.EnableSystemTextJson(new () { ReferenceHandler = ReferenceHandler.IgnoreCycles }))
 );
 using var app = builder.Build();
-app.Services.GetRequiredService<BoardRMQController>();
-app.Services.GetRequiredService<TicketRMQController>();
+var _ = app.Services.GetRequiredService<BoardRMQController>();
+
 
 app.Run("http://localhost:5252/");

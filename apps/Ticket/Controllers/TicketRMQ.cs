@@ -1,15 +1,15 @@
-using Board.Contracts;
-using Board.Models;
-using Board.Services;
+using Ticket.Contracts;
+using Ticket.Models;
+using Ticket.Services;
 using EasyNetQ;
 
-namespace Board.Controllers;
+namespace Ticket.Controllers;
 
 public class TicketRMQController : IDisposable
 {
   private readonly IBus bus;
   private readonly IServiceProvider serviceProvider;
-  readonly List<IDisposable> disposables = new();
+  readonly List<IDisposable> disposables = [];
 
   public TicketRMQController(IBus _bus, IServiceProvider _serviceProvider)
   {

@@ -1,13 +1,13 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Board.Contracts;
-using Board.DTOs;
 using Board.Hubs;
-using Board.Models;
 using EasyNetQ;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Ticket.Contracts;
+using Ticket.DTOs;
+using Ticket.Models;
 using UserBoard.Contracts;
 using UserBoard.Enums;
 using UserBoard.Models;

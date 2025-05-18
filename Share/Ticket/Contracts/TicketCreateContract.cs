@@ -1,5 +1,5 @@
-using Board.DTOs;
+using Ticket.DTOs;
 
-namespace Board.Contracts;
+namespace Ticket.Contracts;
 
 public record TicketCreateContract(TicketAddDTO DTO);

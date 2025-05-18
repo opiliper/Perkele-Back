@@ -1,4 +1,6 @@
-namespace Board.Models;
+using Board.Models;
+
+namespace Ticket.Models;
 
 public class TicketModel
 {

@@ -1,5 +1,5 @@
 using Board.DTOs;
 
-namespace Board.Contracts;
+namespace Ticket.Contracts;
 
 public record TicketNodeDeleteContract(uint TicketId, string Key);

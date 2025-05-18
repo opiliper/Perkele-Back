@@ -1,18 +1,20 @@
-using Board.Contracts;
-using Board.DTOs;
-using Board.Models;
+using Ticket.Contracts;
+using Ticket.Models;
+using EasyNetQ;
 using Microsoft.EntityFrameworkCore;
+using Board.Contracts;
+using Board.Models;
 
-namespace Board.Services;
+namespace Ticket.Services;
 
-public class TicketService(BoardDBContext context, BoardService _boardService)
+public class TicketService(TicketDBContext context, IBus bus)
 {
-  private readonly BoardDBContext DB = context;
-  private readonly BoardService boardService = _boardService;
+  private readonly TicketDBContext DB = context;
+  private readonly IBus Bus = bus;
 
   public async Task<TicketModel?> AddAsync(TicketCreateContract contract)
   {
-    var _board = await boardService.GetAsync(new(contract.DTO.Board_id));
+    var _board = await Bus.Rpc.RequestAsync<BoardGetContract, BoardModel>(new (contract.DTO.Board_id));
     if (_board is null)
       return null;
 

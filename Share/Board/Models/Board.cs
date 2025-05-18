@@ -1,3 +1,4 @@
+using Ticket.Models;
 using UserBoard.Models;
 
 namespace Board.Models;

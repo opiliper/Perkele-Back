@@ -1,4 +1,4 @@
-namespace Board.DTOs;
+namespace Ticket.DTOs;
 
 public class TicketUpdateDTO
 {

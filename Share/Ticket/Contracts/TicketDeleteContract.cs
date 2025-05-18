@@ -1,3 +1,3 @@
-namespace Board.Contracts;
+namespace Ticket.Contracts;
 
 public record TicketDeleteContract(uint Id);

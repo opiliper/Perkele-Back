@@ -2,6 +2,7 @@ using Board.Models;
 using Microsoft.EntityFrameworkCore;
 using UserBoard.Models;
 using Users.Models;
+using Ticket.Models;
 
 public class PerkeleDBContext(DbContextOptions options) : DbContext(options)
 {

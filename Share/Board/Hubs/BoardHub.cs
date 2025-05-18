@@ -1,6 +1,7 @@
 using Board.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Ticket.Models;
 
 namespace Board.Hubs;
 
